@@ -59,17 +59,14 @@ def decrypt():
     global master_public, master_secret
 
     data = request.json
-    attributes = data["attributes"]
+    private_user_key = data["private_key"]
 
     # 1. Load bundle
     abe_ct = bytesToObject(data["cipher"]["abe_ct"].encode(), group)
     sym_ct = base64.b64decode(data["cipher"]["sym_ct"])
 
-    # 2. Generate ABE key
-    sk = cpabe.keygen(master_public, master_secret, attributes)
-
     # 3. Recover GT element
-    gt_element = cpabe.decrypt(master_public, sk, abe_ct)
+    gt_element = cpabe.decrypt(master_public, private_user_key, abe_ct)
 
     if not gt_element:
         return {"error": "access denied"}
@@ -81,6 +78,23 @@ def decrypt():
 
     return jsonify({
         "message": plaintext.decode()
+    })
+
+@app.route("/generate_key", methods=["POST"])
+def generate_key():
+    global master_public, master_secret
+
+    data = request.json
+    attributes = data["attributes"]
+
+    # 1. Generate ABE key
+    private_key = cpabe.keygen(master_public, master_secret, attributes)
+
+    # 2. Serialize the key
+    serialized_private_key = objectToBytes(private_key, group).decode()
+
+    return jsonify({
+        "private_key": serialized_private_key
     })
 
 

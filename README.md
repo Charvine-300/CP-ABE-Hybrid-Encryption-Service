@@ -147,8 +147,8 @@ Encrypts a message using AES + CP-ABE policy wrapping.
 
 ```json
 {
-  "abe_ct": "<serialized-cpabe-ciphertext>",
-  "sym_ct": "<base64-aes-ciphertext>"
+  "abe_ct": "<SERIALIZED-CPABE-CIPHERTEXT>",
+  "sym_ct": "<BASE64-AES-CIPHERTEXT>"
 }
 ```
 
@@ -162,10 +162,10 @@ Decrypts ciphertext using attribute-based keys.
 
 ```json
 {
-  "attributes": ["HR"],
+  "private_key": "<SERIALIZED_PRIVATE_KEY>",
   "cipher": {
-    "abe_ct": "<cpabe-ciphertext>",
-    "sym_ct": "<aes-ciphertext>"
+    "abe_ct": "<CPABE-CIPHERTEXT>",
+    "sym_ct": "<AES-CIPHERTEXT>"
   }
 }
 ```
@@ -178,37 +178,26 @@ Decrypts ciphertext using attribute-based keys.
 }
 ```
 
-## 🧪 Example Workflow
+### 🔓 Generate user Private Key
 
-### Step 1: Setup
+**POST** `/generate_key`
 
-```bash
-curl -X POST http://127.0.0.1:5005/setup
-```
+Generates a private key for a user based on their attributes.
 
-### Step 2: Encrypt
+#### Request
 
-```bash
-curl -X POST http://127.0.0.1:5005/encrypt \
--H "Content-Type: application/json" \
--d '{
-  "policy": "(HR or Manager)",
-  "message": "Hello World"
-}'
-```
-
-### Step 3: Decrypt
-
-```bash
-curl -X POST http://127.0.0.1:5005/decrypt \
--H "Content-Type: application/json" \
--d '{
+```json
+{
   "attributes": ["HR"],
-  "cipher": {
-    "abe_ct": "...",
-    "sym_ct": "..."
-  }
-}'
+}
+```
+
+#### Response
+
+```json
+{
+  "private_key": "SERIALIZED_ABE_PRIVATE_KEY"
+}
 ```
 
 ## 🔐 Security Notes
